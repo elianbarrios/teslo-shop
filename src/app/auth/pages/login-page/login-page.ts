@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '@auth/services/authService';
 
 @Component({
   selector: 'app-login-page',
@@ -12,6 +13,8 @@ export class LoginPage {
   protected fb = inject(FormBuilder);
   protected hasErrors = signal(false);
   protected isPosting = signal(false);
+
+  protected authService = inject(AuthService);
 
   protected loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -30,6 +33,8 @@ export class LoginPage {
 
     const { email = '', password = '' } = this.loginForm.value;
 
-    console.log({ email, password });
+    this.authService.login(email!, password!).subscribe(resp => {
+      console.log(resp);
+    });
   }
 }
