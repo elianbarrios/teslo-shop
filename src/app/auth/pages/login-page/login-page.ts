@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@auth/services/authService';
 
 @Component({
@@ -13,6 +13,7 @@ export class LoginPage {
   protected fb = inject(FormBuilder);
   protected hasErrors = signal(false);
   protected isPosting = signal(false);
+  private router = inject(Router);
 
   protected authService = inject(AuthService);
 
@@ -33,8 +34,18 @@ export class LoginPage {
 
     const { email = '', password = '' } = this.loginForm.value;
 
-    this.authService.login(email!, password!).subscribe(resp => {
-      console.log(resp);
-    });
+    this.authService
+      .login(email!, password!)
+      .subscribe(isAuthenticated => {
+        if (isAuthenticated) {
+          this.router.navigateByUrl('/');
+          return;
+        }
+
+        this.hasErrors.set(true);
+        setTimeout(() => {
+          this.hasErrors.set(false);
+        }, 2000);
+      });
   }
 }
